@@ -2,13 +2,11 @@
 
 const { TelegramClient } = require('telegram');
 const { StringSession } = require('telegram/sessions');
-const { Api } = require('telegram');
+const { NewMessage } = require('telegram/events');
 const readline = require('readline');
 
 const apiId = Number(process.env.TELEGRAM_API_ID);
 const apiHash = process.env.TELEGRAM_API_HASH;
-
-// Se TELEGRAM_SESSION_STRING estiver vazia, usaremos o fluxo interativo para gerar uma session string.
 const sessionStringFromEnv = process.env.TELEGRAM_SESSION_STRING || "";
 const stringSession = new StringSession(sessionStringFromEnv);
 const client = new TelegramClient(stringSession, apiId, apiHash, {
@@ -16,7 +14,6 @@ const client = new TelegramClient(stringSession, apiId, apiHash, {
 });
 
 async function startClient(onMessageCallback) {
-  // Se não foi fornecida uma session string válida, configuramos o fluxo interativo.
   const interactiveOptions = {};
   if (!sessionStringFromEnv) {
     const rl = readline.createInterface({
@@ -47,14 +44,14 @@ async function startClient(onMessageCallback) {
     throw err;
   }
 
-  // Se utilizou o fluxo interativo, exibe a session string gerada para que você a salve.
   if (!sessionStringFromEnv) {
     console.log("Session string gerada, salve-a para evitar login interativo novamente:");
     console.log(client.session.save());
   }
 
   console.log("Cliente do Telegram conectado.");
-  client.addEventHandler(onMessageCallback, new Api.UpdateNewMessage({}));
+  // Usa o filtro correto para novas mensagens
+  client.addEventHandler(onMessageCallback, new NewMessage({}));
   return client;
 }
 
