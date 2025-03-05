@@ -14,7 +14,7 @@
     "docker",
     "redundância"
   ],
-  "author": "Seu Nome",
+  "author": "https://github.com/isaacgalmeida",
   "license": "MIT",
   "dependencies": {
     "telegram": "^2.22.2",
