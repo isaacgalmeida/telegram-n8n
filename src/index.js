@@ -1,9 +1,8 @@
-// src/index.js
-
-// Não é necessário carregar dotenv pois usamos o node --env-file=.env
 const { startClient } = require('./telegramClient');
 const { sendToN8N } = require('./webhook');
 const { acquireLock } = require('./redundancy');
+// Importa o filtro correto para novas mensagens
+const { NewMessage } = require('telegram/events');
 
 async function startTelegramMonitoring() {
   await startClient(async (update) => {
@@ -17,7 +16,7 @@ async function startTelegramMonitoring() {
 
     console.log('Mensagem recebida:', messageData);
     await sendToN8N(messageData);
-  });
+  }, new NewMessage({}));
 }
 
 async function main() {
