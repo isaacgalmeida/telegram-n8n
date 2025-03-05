@@ -4,7 +4,7 @@
   "description": "Sistema para monitorar a API do Telegram e enviar dados para N8N via webhook, com redundância entre VPSs",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node --env-file=.env src/index.js"
   },
   "keywords": [
     "telegram",
@@ -20,7 +20,7 @@
     "telegram": "^2.22.2",
     "axios": "^1.4.0",
     "ioredis": "^5.3.1",
-    "redlock": "^5.0.0-beta.2", 
+    "redlock": "^5.0.0-beta.2",
     "input": "^1.0.1"
   }
 }
