@@ -1,4 +1,3 @@
-require('dotenv').config();
 const { startClient } = require('./telegramClient');
 const { sendToN8N } = require('./webhook');
 const { acquireLock } = require('./redundancy');
