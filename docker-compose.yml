@@ -3,7 +3,7 @@ services:
     build: .
     env_file: .env
     ports:
-      - "3000:3000"
+      - "3009:3000"
     depends_on:
       - redis
     restart: always
@@ -11,5 +11,5 @@ services:
   redis:
     image: redis:alpine
     ports:
-      - "6379:6379"
+      - "6390:6379"
     restart: always

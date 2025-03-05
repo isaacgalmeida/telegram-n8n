@@ -16,7 +16,7 @@ COPY . .
 RUN chown -R nodeapp:nodeapp /var/nodeapp
 
 # Expondo a porta (útil para health-check ou debug, se necessário)
-EXPOSE 3000
+EXPOSE 3009
 
 ARG VERSION
 ENV VERSION=${VERSION:-1.0.0}
