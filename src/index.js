@@ -1,6 +1,24 @@
+// src/index.js
+
+// Não é necessário carregar dotenv pois usamos o node --env-file=.env
 const { startClient } = require('./telegramClient');
 const { sendToN8N } = require('./webhook');
 const { acquireLock } = require('./redundancy');
+
+async function startTelegramMonitoring() {
+  await startClient(async (update) => {
+    // Extrai os dados da mensagem recebida
+    const messageData = {
+      id: update.message.id,
+      text: update.message.message,
+      media: update.message.media ? update.message.media.toString() : null,
+      date: update.message.date,
+    };
+
+    console.log('Mensagem recebida:', messageData);
+    await sendToN8N(messageData);
+  });
+}
 
 async function main() {
   // Tenta adquirir o lock para definir a instância ativa
@@ -8,19 +26,19 @@ async function main() {
 
   if (!lock) {
     console.log('Instância em standby. Monitorando lock para assumir quando liberado...');
-    // Implemente um mecanismo para re-tentar periodicamente (por exemplo, a cada 10 segundos)
+    // Tenta a cada 10 segundos adquirir o lock
     setInterval(async () => {
       const newLock = await acquireLock();
       if (newLock) {
         console.log('Esta instância assumiu o papel ativo.');
-        startTelegramMonitoring();
+        await startTelegramMonitoring();
       }
     }, 10000);
   } else {
     // Se o lock foi adquirido, inicia o monitoramento
-    startTelegramMonitoring();
+    await startTelegramMonitoring();
     
-    // Renovação do lock (opcional) para evitar expiração
+    // Renovação do lock para evitar expiração
     setInterval(async () => {
       try {
         await lock.extend(30000);
@@ -30,24 +48,9 @@ async function main() {
       }
     }, 25000);
   }
-}
-
-async function startTelegramMonitoring() {
-  await startClient(async (update) => {
-    // Extraia a mensagem ou mídia do update (ajuste conforme o formato do update recebido)
-    const messageData = {
-      id: update.message.id,
-      text: update.message.message,
-      // Se houver mídia, inclua detalhes ou URLs, se possível
-      media: update.message.media ? update.message.media.toString() : null,
-      date: update.message.date,
-    };
-
-    console.log('Mensagem recebida:', messageData);
-
-    // Envia para o N8N
-    await sendToN8N(messageData);
-  });
+  
+  // Impede que o processo termine, mantendo o event loop ativo
+  setInterval(() => {}, 1000);
 }
 
 main().catch((err) => console.error('Erro no main:', err));
