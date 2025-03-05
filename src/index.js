@@ -1,16 +1,25 @@
-const { startClient } = require('./telegramClient');
+// src/index.js
+const { startClient, client } = require('./telegramClient');
 const { sendToN8N } = require('./webhook');
 const { acquireLock } = require('./redundancy');
-// Importa o filtro correto para novas mensagens
 const { NewMessage } = require('telegram/events');
 
 async function startTelegramMonitoring() {
   await startClient(async (update) => {
-    // Extrai os dados da mensagem recebida
+    let mediaLink = null;
+    if (update.message.media) {
+      try {
+        // Obtém o link temporário para a mídia
+        mediaLink = await client.getFileLink(update.message.media);
+      } catch (err) {
+        console.error("Erro ao obter link da mídia:", err);
+      }
+    }
+    
     const messageData = {
       id: update.message.id,
       text: update.message.message,
-      media: update.message.media ? update.message.media.toString() : null,
+      media: mediaLink || null,
       date: update.message.date,
     };
 
